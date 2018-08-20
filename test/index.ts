@@ -2,14 +2,13 @@ import 'mocha'
 import * as assert from 'assert'
 import {randomBytes} from 'crypto'
 import * as fetch from 'node-fetch'
-import {PrivateKey, Client, utils, Signature} from 'dsteem'
-
+import {PrivateKey, Client, utils, Signature} from 'eznode.js'
 import {sign, validate, JsonRpcRequest, VerifyMessage, SignedJsonRpcRequest} from './../src/'
 
 const dummyVerify: VerifyMessage = async (message: Buffer, signatures: string[], account: string) => {}
 
 const client = Client.testnet()
-const dsteemVerify: VerifyMessage = async (message: Buffer, signatures: string[], account: string) => {
+const eznodeVerify: VerifyMessage = async (message: Buffer, signatures: string[], account: string) => {
     const opts = {
         hash: message,
         signatures,
@@ -38,7 +37,7 @@ async function createTestnetAccount(): Promise<{username: string, password: stri
     }
     const password = randomString(32)
     const username = `rpcauth-${ randomString(8) }`
-    const response = await fetch('https://testnet.steem.vc/create', {
+    const response = await fetch('https://api.ezira.io/create', {
         method: 'POST',
         body: `username=${ username }&password=${ password }`,
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -177,13 +176,13 @@ describe('rpc auth', function() {
         const signed = sign(req, testAccount.username, [testKey])
 
         // valid
-        await validate(signed, dsteemVerify)
+        await validate(signed, eznodeVerify)
 
         // invalid method
         invalid = utils.copy(signed)
         invalid.method = 'foo.bar2'
         error = await assertThrows(async () => {
-            await validate(invalid, dsteemVerify)
+            await validate(invalid, eznodeVerify)
         })
         assert.equal(String(error), 'ValidationError: Verification failed (Signature invalid)')
 
@@ -191,7 +190,7 @@ describe('rpc auth', function() {
         invalid = utils.copy(signed)
         invalid.params.__signed.account = 'baz'
         error = await assertThrows(async () => {
-            await validate(invalid, dsteemVerify)
+            await validate(invalid, eznodeVerify)
         })
         assert.equal(String(error), 'ValidationError: Verification failed (Signature invalid)')
 
@@ -199,7 +198,7 @@ describe('rpc auth', function() {
         invalid = utils.copy(signed)
         invalid.params.__signed.account = 'baz'
         error = await assertThrows(async () => {
-            await validate(invalid, dsteemVerify)
+            await validate(invalid, eznodeVerify)
         })
         assert.equal(String(error), 'ValidationError: Verification failed (Signature invalid)')
 
@@ -207,7 +206,7 @@ describe('rpc auth', function() {
         invalid = utils.copy(signed)
         invalid.params.__signed.nonce = randomBytes(8).toString('hex')
         error = await assertThrows(async () => {
-            await validate(invalid, dsteemVerify)
+            await validate(invalid, eznodeVerify)
         })
         assert.equal(String(error), 'ValidationError: Verification failed (Signature invalid)')
 
@@ -215,7 +214,7 @@ describe('rpc auth', function() {
         invalid = utils.copy(signed)
         invalid.params.__signed.params = 'eyJpbGlrZSI6InR1cnRsZXMifQ=='
         error = await assertThrows(async () => {
-            await validate(invalid, dsteemVerify)
+            await validate(invalid, eznodeVerify)
         })
         assert.equal(String(error), 'ValidationError: Verification failed (Signature invalid)')
 
@@ -223,7 +222,7 @@ describe('rpc auth', function() {
         invalid = utils.copy(signed)
         invalid.params.__signed.timestamp = '3020-01-01T00:00:00Z'
         error = await assertThrows(async () => {
-            await validate(invalid, dsteemVerify)
+            await validate(invalid, eznodeVerify)
         })
         assert.equal(String(error), 'ValidationError: Verification failed (Signature invalid)')
 
@@ -233,7 +232,7 @@ describe('rpc auth', function() {
             PrivateKey.fromSeed('foobar').sign(randomBytes(32)).toString()
         ]
         error = await assertThrows(async () => {
-            await validate(invalid, dsteemVerify)
+            await validate(invalid, eznodeVerify)
         })
         assert.equal(String(error), 'ValidationError: Verification failed (Signature invalid)')
 
@@ -243,7 +242,7 @@ describe('rpc auth', function() {
             PrivateKey.fromString(testKey).sign(randomBytes(32)).toString()
         ]
         error = await assertThrows(async () => {
-            await validate(invalid, dsteemVerify)
+            await validate(invalid, eznodeVerify)
         })
         assert.equal(String(error), 'ValidationError: Verification failed (Signature invalid)')
     })
