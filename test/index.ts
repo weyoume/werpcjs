@@ -37,7 +37,7 @@ async function createTestnetAccount(): Promise<{username: string, password: stri
     }
     const password = randomString(32)
     const username = `rpcauth-${ randomString(8) }`
-    const response = await fetch('https://api.weyoume.io/create', {
+    const response = await fetch('https://api.WeYouMe.io/create', {
         method: 'POST',
         body: `username=${ username }&password=${ password }`,
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},

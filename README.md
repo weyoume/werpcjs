@@ -9,7 +9,7 @@ Specification
 
 ### Overview
 
-Request signing for [JSON-RPC 2.0](http://www.jsonrpc.org/specification) implemented using [WeYouMe](https://alpha.weyoume.io) authorities.
+Request signing for [JSON-RPC 2.0](http://www.jsonrpc.org/specification) implemented using [WeYouMe](https://alpha.WeYouMe.io) authorities.
 
 ### Design Goals
 
